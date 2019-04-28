@@ -1,0 +1,6 @@
+[topicArr]
+ipaddr = 1.1.1.1
+corpid = xxx 
+corpsecret = xxx
+appid = xxx
+dirname1 = /usr/local/yxrh_fsnotify/sbin
