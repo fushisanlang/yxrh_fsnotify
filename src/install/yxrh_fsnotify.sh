@@ -8,18 +8,20 @@ pidfile=${WD}pid.file
 start() {
     cd ${WD}
     if [[ -e conf/config.ini ]]; then
-        if [[ ${2} = nosend ]]; then
+        if [[ ${1} = nosend ]]; then
             nohup ${WD}sbin/yxrh_fsnotify_nosend  > /dev/null 2>&1 &
+            pid=`ps -ef| grep "yxrh_fsnotify_nosend" |grep -v grep |awk '{print $2}'`
         else
             nohup ${WD}sbin/yxrh_fsnotify  > /dev/null 2>&1 &
+            pid=`ps -ef| grep "yxrh_fsnotify" |grep -v grep |awk '{print $2}'`
         fi
-        pid=`ps -ef| grep "/usr/local/yxrh_fsnotify/sbin/yxrh_fsnotify" |grep -v grep |awk '{print $2}'`
         echo ${pid} >${pidfile}
         echo -e "\e[1;32mserver run as ${pid}\e[0m" 
     else
         echo -e "\e[1;31mserver start faild,please check your config file \e[0m"
     fi
 }
+
 
 stop() {
     cd ${WD}
@@ -54,7 +56,7 @@ shell_help() {
 
 case $1 in
         start )
-        start;;
+        start ${2};;
         stop )
         stop;;
         status )
