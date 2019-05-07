@@ -4,16 +4,15 @@
 
 WD="/usr/local/yxrh_fsnotify/"
 
-if [[ ${2} = nosend ]]; then
-alias yxrh_fsnotify="yxrh_fsnotify_nosend"
-fi
-
 pidfile=${WD}pid.file
 start() {
     cd ${WD}
     if [[ -e conf/config.ini ]]; then
-        nohup ${WD}sbin/yxrh_fsnotify  > /dev/null 2>&1 &
-        # clear
+        if [[ ${2} = nosend ]]; then
+            nohup ${WD}sbin/yxrh_fsnotify_nosend  > /dev/null 2>&1 &
+        else
+            nohup ${WD}sbin/yxrh_fsnotify  > /dev/null 2>&1 &
+        fi
         pid=`ps -ef| grep "/usr/local/yxrh_fsnotify/sbin/yxrh_fsnotify" |grep -v grep |awk '{print $2}'`
         echo ${pid} >${pidfile}
         echo -e "\e[1;32mserver run as ${pid}\e[0m" 
