@@ -3,4 +3,6 @@ ipaddr = 1.1.1.1
 corpid = xxx 
 corpsecret = xxx
 appid = xxx
-dirname1 = /usr/local/yxrh_fsnotify/sbin
+dirname1 = /usr/local/yxrh_fsnotify/src
+skipname1 = /usr/local/yxrh_fsnotify/src/install
+skipname2 = /usr/local/yxrh_fsnotify/src/install/*
