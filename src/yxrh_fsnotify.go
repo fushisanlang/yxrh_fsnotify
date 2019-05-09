@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
 	"os"
 	"os/exec"
@@ -64,21 +63,17 @@ func sedmsg(msg_oper, msg_file string) {
 	corpsecret := readconf("corpsecret")
 	day := time.Now().Format("15:04:05")
 	MMsg := ipaddr + " " + day + " " + msg_oper + " " + msg_file
-	fmt.Println(MMsg)
 	msgstr := `/usr/local/yxrh_fsnotify/sbin/yxrh_sendmail -c "` + MMsg + `" -i ` + appid + ` -p ` + corpid + ` -s ` + corpsecret
-	fmt.Println(msgstr)
 	cmd := exec.Command("/bin/bash", "-c", msgstr)
 
 	//创建获取命令输出管道
 	_, err := cmd.StdoutPipe()
 	if err != nil {
-		fmt.Printf("Error:can not obtain stdout pipe for command:%s\n", err)
 		return
 	}
 
 	//执行命令
 	if err := cmd.Start(); err != nil {
-		fmt.Println("Error:The command is err,", err)
 		return
 	}
 
@@ -88,6 +83,7 @@ func (w *Watch) watchDir(dir string) {
 	filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
 		if info.IsDir() {
 			path, err := filepath.Abs(path)
+
 			if err != nil {
 				return err
 			}
@@ -95,6 +91,7 @@ func (w *Watch) watchDir(dir string) {
 			if err != nil {
 				return err
 			}
+
 			logger.Info("监控 : ", path)
 		}
 		return nil
@@ -104,6 +101,9 @@ func (w *Watch) watchDir(dir string) {
 			select {
 			case ev := <-w.watch.Events:
 				{
+					if searchinmap(ev.Name) == true {
+						break
+					}
 					if ev.Op&fsnotify.Create == fsnotify.Create {
 						logger.Alert("创建文件 : ", ev.Name)
 						sedmsg("创建文件", ev.Name)
@@ -156,8 +156,35 @@ func getnamelist(num int) string {
 	dirnamenum := "dirname" + strconv.Itoa(num)
 	dirname := readconf(dirnamenum)
 	return dirname
-
 }
+
+func getskipnamelist(num int) string {
+	skipnamenum := "skipname" + strconv.Itoa(num)
+	skipname := readconf(skipnamenum)
+	return skipname
+}
+func searchinmap(path string) bool {
+
+	skipnamemap := make(map[int]string)
+	for index := 1; ; index++ {
+		if getskipnamelist(index) == "" {
+			break
+		} else {
+			skipnamemap[index] = getskipnamelist(index)
+		}
+	}
+
+	result := map[int]bool{1: false}
+	for _, value := range skipnamemap {
+		ok, _ := filepath.Match(value+`/*`, path)
+		if ok {
+			result[1] = true
+			break
+		}
+	}
+	return result[1]
+}
+
 func main() {
 	logger.SetLogger(`{"Console":{"level":"INFO"},"File": {"filename":"/usr/local/yxrh_fsnotify/log/fsnotify.log","level": "ALRT","maxlines": 1000000,"maxsize": 1,"maxdays": -1,"append": true,"permit": "0664"}}`)
 
@@ -172,5 +199,4 @@ func main() {
 		w.watchDir(dir)
 	}
 	select {}
-
 }
