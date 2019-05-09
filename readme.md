@@ -56,6 +56,9 @@ appid = xxx #企业微信号中应用的appid
 dirname1 = /tmp/home #想要监控的目录的绝对路径
 dirname2 = /usr/local/sbin #第二个路径，理论支持若干路径，但是建议只监控几个比较外层的目录
 dirname3 = /usr/local/nginx/conf #不建议监控日志目录，因为经常写入的目录会不停的发送报警
+skipname1 = /tmp/home/1 #可以跳过对单个目录下所有文件的监控
+skipname2 = /tmp/home/1/* #如果需要跳过子文件夹下文件的监控，则需要在父目录后添加 "/*"
+skipname3 = /tmp/home/1/*/* #如果需要跳过多层子文件夹下文件的监控，则需要按照路径深度添加多个 "/*"
 ```
 
 * 使用方法
